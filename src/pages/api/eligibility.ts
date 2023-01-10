@@ -11,7 +11,7 @@ const eligibility = async (req: NextApiRequest, res: NextApiResponse) => {
   }
   const supabase = createClient(
     "https://msvnkzrbqnjknulgqbal.supabase.co",
-    env.SUPABASE_KEY
+    env.NEXT_PUBLIC_SUPABASE_KEY
   );
   const { data: femalesData, error: femalesError } = await supabase
     .from("females")
@@ -62,7 +62,7 @@ const eligibility = async (req: NextApiRequest, res: NextApiResponse) => {
   res.status(200).json({ parents: eligibleParents });
 };
 
-type NFT_DATA = {
+export type NFT_DATA = {
   token_id: number;
   fertile: boolean;
   skin_tone: string;

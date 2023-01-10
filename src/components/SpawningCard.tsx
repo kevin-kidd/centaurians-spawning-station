@@ -22,7 +22,7 @@ export const SpawningCard: FunctionComponent = () => {
       <div className="flex w-full justify-around text-center text-2xl font-semibold">
         <h3 className="flex flex-col">
           Male{" "}
-          <span className="text-3xl text-[hsl(289,85%,57%)]">
+          <span className="text-3xl text-[hsl(275,94%,61%)]">
             {isLoadingInventory
               ? "..."
               : inventoryError
@@ -32,7 +32,7 @@ export const SpawningCard: FunctionComponent = () => {
         </h3>
         <h3 className="flex flex-col">
           Female{" "}
-          <span className="text-3xl text-[hsl(289,85%,57%)]">
+          <span className="text-3xl text-[hsl(275,94%,61%)]">
             {isLoadingInventory
               ? "..."
               : inventoryError
@@ -43,7 +43,7 @@ export const SpawningCard: FunctionComponent = () => {
       </div>
       <h4 className="mt-1 text-lg">
         You have{" "}
-        <span className="text-xl font-semibold text-[hsl(289,85%,57%)]">
+        <span className="text-xl font-semibold text-[hsl(275,94%,61%)]">
           {isLoadingParents
             ? "..."
             : parentsError
