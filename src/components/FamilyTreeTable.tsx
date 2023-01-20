@@ -251,14 +251,14 @@ export const FamilyTreeTable: FunctionComponent<{
             "text-xl text-white/90",
             (selectedCollection === "Females"
               ? Math.ceil(filteredFemales.length / 5)
-              : Math.ceil(filteredMales.length / 5)) === currentPage
+              : Math.ceil(filteredMales.length / 5)) <= currentPage
               ? "hover:cursor-not-allowed"
               : "hover:text-white"
           )}
           disabled={
             (selectedCollection === "Females"
               ? Math.ceil(filteredFemales.length / 5)
-              : Math.ceil(filteredMales.length / 5)) === currentPage
+              : Math.ceil(filteredMales.length / 5)) <= currentPage
           }
           onClick={() => setCurrentPage(currentPage + 1)}
         >

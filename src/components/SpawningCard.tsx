@@ -89,7 +89,7 @@ export const SpawningCard: FunctionComponent = () => {
               ? "..."
               : inventoryError
               ? "N/A"
-              : inventory?.female.length}
+              : inventory?.female?.length}
           </span>
         </h3>
       </div>

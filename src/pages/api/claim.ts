@@ -108,7 +108,7 @@ const claim = async (req: NextApiRequest, res: NextApiResponse) => {
     .from("children")
     .select()
     .filter("skin_tone", "eq", skinTone);
-  if (childrenError) {
+  if (childrenError || !childrenData) {
     console.error({ childrenError });
     return res
       .status(500)
@@ -118,6 +118,12 @@ const claim = async (req: NextApiRequest, res: NextApiResponse) => {
     token_id: number;
     skin_tone: string;
   } = childrenData[Math.floor(Math.random() * childrenData.length) + 1];
+  if (!randomChild) {
+    console.error("Failed to choose a random child.");
+    return res
+      .status(500)
+      .send("An unexpected error occurred, please try again. 005");
+  }
   // Attempt to mint 1 randomly chosen child from the list
   console.log(`Minting Child #${randomChild.token_id} to: ${femaleOwner}`);
   try {
