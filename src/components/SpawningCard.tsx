@@ -1,5 +1,4 @@
 import { CosmWasmClient } from "@cosmjs/cosmwasm-stargate";
-import { useWallet } from "@cosmos-kit/react";
 import type { QueryFunctionContext } from "@tanstack/react-query";
 import { useQuery } from "@tanstack/react-query";
 import ky, { HTTPError } from "ky";
@@ -10,9 +9,10 @@ import { useToast } from "@chakra-ui/react";
 import { CONTRACTS, RPC_ENDPOINT } from "../config";
 import { env } from "../env/client.mjs";
 import { SpawningButton } from "./SpawningModal";
+import { useChain } from "@cosmos-kit/react";
 
 export const SpawningCard: FunctionComponent = () => {
-  const { address, openView } = useWallet();
+  const { address, openView } = useChain("stargaze");
   const {
     isLoading: isLoadingInventory,
     error: inventoryError,

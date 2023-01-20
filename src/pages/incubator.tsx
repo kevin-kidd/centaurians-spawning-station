@@ -1,15 +1,11 @@
+import { useChain } from "@cosmos-kit/react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import { useWallet } from "@cosmos-kit/react";
-import { useEffect } from "react";
 import { SpawningCard } from "../components/SpawningCard";
 
 const Incubator: NextPage = () => {
-  const { isWalletConnected, openView, setCurrentChain } = useWallet();
-  useEffect(() => {
-    setCurrentChain("stargaze");
-  }, []);
+  const { isWalletConnected, openView } = useChain("stargaze");
   return (
     <>
       <Head>
