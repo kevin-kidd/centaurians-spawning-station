@@ -1,5 +1,5 @@
 {
-  "name": "centaurians-breeding-station",
+  "name": "centaurians-spawning-station",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -25,11 +25,15 @@
     "@tanstack/react-query": "^4.20.9",
     "chain-registry": "^1.6.0",
     "classnames": "^2.3.2",
+    "cosmwasm": "^1.1.1",
     "framer-motion": "^8.2.4",
+    "ky": "^0.33.2",
     "minisearch": "^6.0.0",
+    "moment": "^2.29.4",
     "next": "13.1.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-icons": "^4.7.1",
     "zod": "^3.20.2"
   },
   "devDependencies": {

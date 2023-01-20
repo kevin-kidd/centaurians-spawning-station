@@ -20,7 +20,8 @@ const eligibility = async (req: NextApiRequest, res: NextApiResponse) => {
       "token_id",
       "in",
       `(${inventory.female.map((a: string) => JSON.stringify(a)).join()})`
-    );
+    )
+    .filter("fertile", "eq", true);
   const { data: malesData, error: malesError } = await supabase
     .from("males")
     .select()
@@ -28,8 +29,11 @@ const eligibility = async (req: NextApiRequest, res: NextApiResponse) => {
       "token_id",
       "in",
       `(${inventory.male.map((a: string) => JSON.stringify(a)).join()})`
-    );
+    )
+    .filter("fertile", "eq", true);
   if (malesError || femalesError) {
+    console.error({ malesError });
+    console.error({ femalesError });
     return res.status(500).send("An unexpected error occurred - 1");
   }
   if (!malesData || !femalesData) {
@@ -43,7 +47,7 @@ const eligibility = async (req: NextApiRequest, res: NextApiResponse) => {
   );
   if (!males || !females) {
     // If there isn't any fertile males or females
-    return res.status(500).json({ parents: [] });
+    return res.status(200).json({ parents: [] });
   }
   for (const male of males) {
     const femaleIndex = females.findIndex(

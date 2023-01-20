@@ -21,8 +21,8 @@ const Incubator: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="bg-image" />
-      <main className="relative flex min-h-screen flex-col items-center pt-[10%]">
-        <div className="container flex flex-col items-center gap-12 px-4 py-16">
+      <main className="flex relative min-h-screen flex-col items-center pt-[10%]">
+        <div className="flex container flex-col items-center gap-12 px-4 py-16">
           <Link
             className="absolute top-8 left-8 text-lg font-semibold text-white"
             href="/"
@@ -32,7 +32,7 @@ const Incubator: NextPage = () => {
           <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-[4rem]">
             Incubator
           </h1>
-          <div className="relative mt-4 flex w-full max-w-lg flex-col items-center gap-5 rounded-xl bg-white/20 p-8 text-white">
+          <div className="flex relative mt-4 w-full max-w-lg flex-col items-center gap-5 rounded-xl bg-white/20 p-8 text-white">
             {isWalletConnected ? (
               <SpawningCard />
             ) : (

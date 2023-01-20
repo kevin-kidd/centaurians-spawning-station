@@ -2,8 +2,14 @@ import { CosmWasmClient } from "@cosmjs/cosmwasm-stargate";
 import { useWallet } from "@cosmos-kit/react";
 import type { QueryFunctionContext } from "@tanstack/react-query";
 import { useQuery } from "@tanstack/react-query";
+import ky, { HTTPError } from "ky";
 import type { FunctionComponent } from "react";
-import classNames from "classnames";
+import { useRef } from "react";
+import type { ToastId } from "@chakra-ui/react";
+import { useToast } from "@chakra-ui/react";
+import { CONTRACTS, RPC_ENDPOINT } from "../config";
+import { env } from "../env/client.mjs";
+import { SpawningButton } from "./SpawningModal";
 
 export const SpawningCard: FunctionComponent = () => {
   const { address, openView } = useWallet();
@@ -11,12 +17,58 @@ export const SpawningCard: FunctionComponent = () => {
     isLoading: isLoadingInventory,
     error: inventoryError,
     data: inventory,
+    refetch: refetchInventory,
   } = useQuery(["inventory", address], fetchInventory);
   const {
     isLoading: isLoadingParents,
     error: parentsError,
     data: eligibleParents,
+    refetch,
   } = useQuery(["inventory", inventory], fetchEligibleParents);
+  const toast = useToast();
+  const toastId = useRef<ToastId>();
+  if (parentsError) console.error({ parentsError });
+  if (inventoryError) console.error({ inventoryError });
+  const handleFaucet = async (address: string) => {
+    if (!toast.isActive("faucet") || !toastId.current) {
+      toastId.current = toast({
+        description: "Requesting from faucet...",
+        status: "loading",
+        isClosable: false,
+        duration: 30000,
+        id: "faucet",
+      });
+    }
+    try {
+      const response = await ky
+        .post("/api/faucet", {
+          json: { address: address },
+        })
+        .text();
+      toast.update(toastId.current, {
+        description: response,
+        isClosable: true,
+        status: "success",
+        duration: 30000,
+      });
+      refetchInventory().then(() => refetch());
+      refetch();
+    } catch (error: unknown) {
+      console.error(error);
+      let errorMsg = "An unexpected error occurred. Please try again.";
+      if (error instanceof HTTPError) {
+        errorMsg = await error.response.text();
+      } else if (error instanceof Error) {
+        errorMsg = error.message;
+      }
+      toast.update(toastId.current, {
+        description: errorMsg,
+        isClosable: true,
+        status: "error",
+        duration: 30000,
+      });
+    }
+  };
   return (
     <>
       <div className="flex w-full justify-around text-center text-2xl font-semibold">
@@ -27,7 +79,7 @@ export const SpawningCard: FunctionComponent = () => {
               ? "..."
               : inventoryError
               ? "N/A"
-              : inventory?.male.length}
+              : inventory?.male?.length}
           </span>
         </h3>
         <h3 className="flex flex-col">
@@ -50,19 +102,23 @@ export const SpawningCard: FunctionComponent = () => {
             ? "N/A"
             : eligibleParents?.parents.length}
         </span>{" "}
-        parent(s) eligible for spawning.
+        couple(s) eligible for spawning.
       </h4>
-      <button
-        className={classNames(
-          "mb-7 rounded-lg bg-white/30 px-3 py-2 text-lg font-semibold hover:bg-white/40",
-          !eligibleParents ||
-            (eligibleParents.parents.length <= 0 && "hover:cursor-not-allowed")
-        )}
+      <SpawningButton
+        parents={eligibleParents?.parents}
         disabled={!eligibleParents || eligibleParents.parents.length <= 0}
-      >
-        Begin Spawning
-      </button>
-      <div className="absolute bottom-2 flex w-full items-end justify-between px-3 text-gray-200">
+        refetch={refetch}
+      />
+      {env.NEXT_PUBLIC_NETWORK_TYPE === "testnet" && address && (
+        <span
+          className="text-md absolute top-2 right-4 hover:cursor-pointer hover:text-white"
+          onClick={() => handleFaucet(address)}
+        >
+          Faucet
+        </span>
+      )}
+
+      <div className="flex absolute bottom-2 w-full items-end justify-between px-3 text-gray-200">
         <span className="truncate text-sm">{address}</span>
         <span
           className="text-md hover:cursor-pointer hover:text-white"
@@ -105,11 +161,9 @@ const fetchInventory = async ({
   queryKey,
 }: QueryFunctionContext<[string, string | null | undefined]>) => {
   const [_, address] = queryKey;
-  const client = await CosmWasmClient.connect(
-    "https://rpc.stargaze-1.publicawesome.dev/"
-  );
+  const client = await CosmWasmClient.connect(RPC_ENDPOINT);
   const femaleInventoryResponse = await client.queryContractSmart(
-    "stars1q30dl4860s5l5xm36swwdv9g8j50j4h8y2f7ynd35ya0jlp5gzts7c6vt0",
+    CONTRACTS.female.sg721,
     {
       tokens: {
         owner: address,
@@ -118,7 +172,7 @@ const fetchInventory = async ({
     }
   );
   const maleInventoryResponse = await client.queryContractSmart(
-    "stars1atmccal7mpum6hvn6ayev9xp0nnjscrk6w9xsfjkhre5fa47z5jsetzvwd",
+    CONTRACTS.male.sg721,
     {
       tokens: {
         owner: address,

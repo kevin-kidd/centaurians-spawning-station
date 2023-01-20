@@ -8,6 +8,8 @@ import { z } from "zod";
 export const serverSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]),
   SUPABASE_KEY_PRIVATE: z.string(),
+  MNEMONIC: z.string(),
+  BACKEND_ADDRESS: z.string(),
 });
 
 /**
@@ -17,6 +19,7 @@ export const serverSchema = z.object({
  */
 export const clientSchema = z.object({
   NEXT_PUBLIC_SUPABASE_KEY: z.string(),
+  NEXT_PUBLIC_NETWORK_TYPE: z.string(),
 });
 
 /**
@@ -27,4 +30,5 @@ export const clientSchema = z.object({
  */
 export const clientEnv = {
   NEXT_PUBLIC_SUPABASE_KEY: process.env.NEXT_PUBLIC_SUPABASE_KEY,
+  NEXT_PUBLIC_NETWORK_TYPE: process.env.NEXT_PUBLIC_NETWORK_TYPE,
 };

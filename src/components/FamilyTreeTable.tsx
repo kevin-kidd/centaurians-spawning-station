@@ -71,7 +71,7 @@ export const FamilyTreeTable: FunctionComponent<{
           >
             <button
               className={classNames(
-                "group flex w-1/2 items-center",
+                "flex group w-1/2 items-center",
                 selectedCollection === "Females" &&
                   "toggle-active rounded-2xl bg-[#383838]"
               )}
@@ -89,7 +89,7 @@ export const FamilyTreeTable: FunctionComponent<{
             </button>
             <button
               className={classNames(
-                "group flex w-1/2 items-center",
+                "flex group w-1/2 items-center",
                 selectedCollection === "Males" &&
                   "toggle-active rounded-2xl bg-[#383838]"
               )}
@@ -203,7 +203,7 @@ export const FamilyTreeTable: FunctionComponent<{
                                 : "stars1atmccal7mpum6hvn6ayev9xp0nnjscrk6w9xsfjkhre5fa47z5jsetzvwd"
                             }/${nftData.token_id}`}
                             target="_blank"
-                            className="flex items-center gap-2 fill-green-600 text-sm text-[#ab3ef9]"
+                            className="flex items-center gap-2 text-sm text-[#ab3ef9]"
                           >
                             View on Stargaze
                             <svg
