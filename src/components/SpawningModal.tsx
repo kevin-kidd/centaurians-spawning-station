@@ -97,7 +97,7 @@ export const SpawningModal: FunctionComponent<{
         <h1 className="ml-5 mb-6 text-xl text-white">
           Spawning child{" "}
           <span className="ml-1 font-semibold">
-            {currentParentsIndex} / {parents?.length}
+            {currentParentsIndex + 1} / {parents?.length}
           </span>
         </h1>
         <div className="flex w-full justify-around px-8">

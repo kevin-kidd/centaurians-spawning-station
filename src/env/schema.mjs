@@ -10,6 +10,8 @@ export const serverSchema = z.object({
   SUPABASE_KEY_PRIVATE: z.string(),
   MNEMONIC: z.string(),
   BACKEND_ADDRESS: z.string(),
+  LOGFLARE_API_KEY: z.string(),
+  LOGFLARE_SOURCE_TOKEN: z.string(),
 });
 
 /**
