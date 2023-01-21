@@ -17,6 +17,7 @@ import ky, { HTTPError } from "ky";
 import { BiError } from "react-icons/bi";
 import type { Child } from "../pages/api/claim";
 import { CONTRACTS, IPFS_CID, STARGAZE_URL } from "../config";
+import ranks from "../ranks.json";
 
 const NftImage = ({ url }: { url: string }) => {
   const [loading, setLoading] = useState(true);
@@ -34,14 +35,14 @@ const NftImage = ({ url }: { url: string }) => {
         height={250}
         alt=""
         onLoadStart={() => setLoading(true)}
-        onLoadingComplete={() => setLoading(false)}
+        onLoad={() => setLoading(false)}
         className={classNames(
-          "h-full w-full rounded-md",
-          loading ? "hidden" : "show"
+          "absolute left-0 top-0 h-full w-full rounded-md",
+          loading ? "invisible" : "visible"
         )}
         src={imageSrc}
       />
-      {loading && <Spinner className="-mt-4" />}
+      {loading && <Spinner className="-mt-4 z-20" />}
     </>
   );
 };
@@ -96,26 +97,34 @@ export const SpawningModal: FunctionComponent<{
         <h1 className="ml-5 mb-6 text-xl text-white">
           Spawning child{" "}
           <span className="ml-1 font-semibold">
-            {currentParentsIndex} / {parents?.length}
+            {currentParentsIndex + 1} / {parents?.length}
           </span>
         </h1>
         <div className="flex w-full justify-around px-8">
-          <div className="flex relative aspect-square h-full w-44 items-center justify-center gap-2 rounded-t-md bg-black/80">
+          <Link
+            href={`${STARGAZE_URL}/media/${CONTRACTS.female.sg721}/${parents[currentParentsIndex]?.female}`}
+            target="_blank"
+            className="flex relative aspect-square h-full w-44 items-center justify-center gap-2 rounded-t-md bg-black/80"
+          >
             <NftImage
               url={`https://ipfs.stargaze.zone/ipfs/${IPFS_CID.female}/${parents[currentParentsIndex]?.female}.png`}
             />
             <h2 className="absolute bottom-0 left-0 w-full bg-black/70 py-2 text-center text-lg font-semibold text-white">
               Female #{parents[currentParentsIndex]?.female}
             </h2>
-          </div>
-          <div className="flex relative aspect-square h-full w-44 items-center justify-center gap-2 rounded-t-md bg-black/80">
+          </Link>
+          <Link
+            href={`${STARGAZE_URL}/media/${CONTRACTS.male.sg721}/${parents[currentParentsIndex]?.male}`}
+            target="_blank"
+            className="flex relative aspect-square h-full w-44 items-center justify-center gap-2 rounded-t-md bg-black/80"
+          >
             <NftImage
               url={`https://ipfs.stargaze.zone/ipfs/${IPFS_CID.male}/${parents[currentParentsIndex]?.male}.png`}
             />
             <h2 className="absolute bottom-0 left-0 w-full bg-black/70 py-2 text-center text-lg font-semibold text-white">
               Male #{parents[currentParentsIndex]?.male}
             </h2>
-          </div>
+          </Link>
         </div>
         <div className="mx-auto w-full max-w-sm py-6">
           <Progress
@@ -167,7 +176,16 @@ export const SpawningModal: FunctionComponent<{
                 {parents[currentParentsIndex]?.skin_tone}
               </span>
             </li>
-            <li className="font-semibold">Rank: ??</li>
+            <li className="font-semibold">
+              Rank:{" "}
+              {children[currentParentsIndex]
+                ? ranks.find(
+                    (rank) =>
+                      parseInt(rank.tokenId) ===
+                      children[currentParentsIndex]?.token_id
+                  )?.rank
+                : "??"}
+            </li>
             <li className="fill-[#ab3ef9] text-sm text-[#ab3ef9]">
               <Link
                 href={

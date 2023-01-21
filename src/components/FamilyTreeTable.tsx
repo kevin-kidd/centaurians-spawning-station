@@ -1,57 +1,79 @@
-import type { SearchResult } from "minisearch";
-import MiniSearch from "minisearch";
 import classNames from "classnames";
 import Image from "next/image";
 import Link from "next/link";
 import type { ChangeEvent, FunctionComponent } from "react";
 import { useState } from "react";
 import type { NFT_DATA } from "../pages/api/eligibility";
+import { env } from "../env/client.mjs";
+import type { PostgrestResponse } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  "https://msvnkzrbqnjknulgqbal.supabase.co",
+  env.NEXT_PUBLIC_SUPABASE_KEY
+);
 
 export const FamilyTreeTable: FunctionComponent<{
-  males: NFT_DATA[];
-  females: NFT_DATA[];
+  males: {
+    data: NFT_DATA[];
+    count: number;
+  };
+  females: {
+    data: NFT_DATA[];
+    count: number;
+  };
 }> = ({ males, females }) => {
   const [selectedCollection, setSelectedCollection] = useState("Females");
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchValue, setSearchValue] = useState<string>();
-  const [filteredMales, setFilteredMales] = useState<NFT_DATA[]>(males);
-  const [filteredFemales, setFilteredFemales] = useState<NFT_DATA[]>(females);
-  const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
-    setSearchValue(event.target.value);
+  const [searchValue, setSearchValue] = useState("");
+  const [filteredNfts, setFilteredNfts] = useState<NFT_DATA[]>(females.data);
+  const handleSearch = async (event: ChangeEvent<HTMLInputElement>) => {
     setCurrentPage(1);
+    setSearchValue(event.target.value);
     if (!event.target.value) {
-      selectedCollection === "Females"
-        ? setFilteredFemales(females)
-        : setFilteredMales(males);
+      resetFilteredNfts();
       return;
     }
-    const miniSearch = new MiniSearch({
-      fields: ["token_id"],
-      storeFields: ["token_id", "skin_tone", "fertile"],
-    });
-    miniSearch.addAll(
-      selectedCollection === "Females"
-        ? females.map((female: NFT_DATA, index: number) => ({
-            ...female,
-            id: index,
-          }))
-        : males.map((male: NFT_DATA, index: number) => ({
-            ...male,
-            id: index,
-          }))
+    // Search DB
+    const { data }: PostgrestResponse<NFT_DATA> = await supabase
+      .from(selectedCollection === "Females" ? "females" : "males")
+      .select()
+      .eq("token_id", event.target.value)
+      .limit(50);
+    if (data) {
+      setFilteredNfts(data);
+    }
+  };
+  const getMoreData = async () => {
+    if (filteredNfts.length >= males.count) return;
+    let nfts: NFT_DATA[] = [];
+    if (searchValue) {
+      const { data }: PostgrestResponse<NFT_DATA> = await supabase
+        .from(selectedCollection === "Females" ? "females" : "males")
+        .select()
+        .eq("token_id", searchValue)
+        .range(filteredNfts.length, filteredNfts.length + 50);
+      if (data) nfts = data;
+    } else {
+      const { data }: PostgrestResponse<NFT_DATA> = await supabase
+        .from(selectedCollection === "Females" ? "females" : "males")
+        .select()
+        .range(filteredNfts.length, filteredNfts.length + 50);
+      if (data) nfts = data;
+    }
+    setFilteredNfts((prev) => [...prev, ...nfts]);
+  };
+  const handleNext = async () => {
+    setCurrentPage((prev) => prev + 1);
+    getMoreData();
+  };
+  const handlePrev = async () => {
+    setCurrentPage((prev) => prev - 1);
+  };
+  const resetFilteredNfts = () => {
+    setFilteredNfts(
+      selectedCollection === "Females" ? females.data : males.data
     );
-    const data = miniSearch.search(event.target.value, {
-      fields: ["token_id"],
-      prefix: true,
-    });
-    const searchResults: NFT_DATA[] = data.map((result: SearchResult) => ({
-      token_id: result.token_id,
-      fertile: result.fertile,
-      skin_tone: result.skin_tone,
-    }));
-    selectedCollection === "Females"
-      ? setFilteredFemales(searchResults)
-      : setFilteredMales(searchResults);
   };
   return (
     <>
@@ -63,8 +85,7 @@ export const FamilyTreeTable: FunctionComponent<{
               setSelectedCollection(
                 selectedCollection === "Females" ? "Males" : "Females"
               );
-              setFilteredFemales(females);
-              setFilteredMales(males);
+              resetFilteredNfts();
               setSearchValue("");
               setCurrentPage(1);
             }}
@@ -149,10 +170,7 @@ export const FamilyTreeTable: FunctionComponent<{
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/20 bg-[#222222]">
-                  {(selectedCollection === "Females"
-                    ? filteredFemales
-                    : filteredMales
-                  )
+                  {filteredNfts
                     .slice(currentPage * 5 - 5, currentPage * 5)
                     .map((nftData: NFT_DATA) => (
                       <tr
@@ -238,29 +256,33 @@ export const FamilyTreeTable: FunctionComponent<{
             currentPage === 1 ? "hover:cursor-not-allowed" : "hover:text-white"
           )}
           disabled={currentPage === 1}
-          onClick={() => setCurrentPage(currentPage - 1)}
+          onClick={handlePrev}
         >
           ←
         </button>
         Page {currentPage}/
         {selectedCollection === "Females"
-          ? Math.ceil(filteredFemales.length / 5)
-          : Math.ceil(filteredMales.length / 5)}
+          ? Math.ceil(searchValue ? filteredNfts.length : females.count / 5)
+          : Math.ceil(searchValue ? filteredNfts.length : males.count / 5)}
         <button
           className={classNames(
             "text-xl text-white/90",
             (selectedCollection === "Females"
-              ? Math.ceil(filteredFemales.length / 5)
-              : Math.ceil(filteredMales.length / 5)) <= currentPage
+              ? Math.ceil(searchValue ? filteredNfts.length : females.count / 5)
+              : Math.ceil(
+                  searchValue ? filteredNfts.length : males.count / 5
+                )) <= currentPage
               ? "hover:cursor-not-allowed"
               : "hover:text-white"
           )}
           disabled={
             (selectedCollection === "Females"
-              ? Math.ceil(filteredFemales.length / 5)
-              : Math.ceil(filteredMales.length / 5)) <= currentPage
+              ? Math.ceil(searchValue ? filteredNfts.length : females.count / 5)
+              : Math.ceil(
+                  searchValue ? filteredNfts.length : males.count / 5
+                )) <= currentPage
           }
-          onClick={() => setCurrentPage(currentPage + 1)}
+          onClick={handleNext}
         >
           →
         </button>

@@ -1,6 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { SigningCosmWasmClient, Secp256k1HdWallet, GasPrice } from "cosmwasm";
 import type { NextApiRequest, NextApiResponse } from "next";
+import pino from "pino";
+import { createWriteStream } from "pino-logflare";
 import type { Parents } from "../../components/SpawningCard";
 import { CONTRACTS, RPC_ENDPOINT } from "../../config";
 import { env } from "../../env/server.mjs";
@@ -9,6 +11,13 @@ export type Child = {
   token_id: number;
   skin_tone: string;
 };
+
+// create pino-logflare logger
+const logStream = createWriteStream({
+  apiKey: env.LOGFLARE_API_KEY,
+  sourceToken: env.LOGFLARE_SOURCE_TOKEN,
+});
+const logger = pino({}, logStream);
 
 const claim = async (req: NextApiRequest, res: NextApiResponse) => {
   const body = req.body;
@@ -30,14 +39,19 @@ const claim = async (req: NextApiRequest, res: NextApiResponse) => {
     .select()
     .eq("token_id", parseInt(parents.male));
   if (femaleError || maleError) {
-    console.error({ femaleError });
-    console.error({ maleError });
+    logger.error(
+      new Error("Failed to find parents in datbaase."),
+      `female error: ${femaleError?.message} |  male error: ${maleError?.message}`
+    );
     return res
       .status(500)
       .send("An unexpected error occurred, please try again. 001");
   }
   if (femaleData.length === 0 || maleData.length === 0) {
-    console.error({ parents });
+    logger.error(
+      new Error("Failed to find parents in database"),
+      `father: ${parents.male}, mother: ${parents.female}`
+    );
     return res
       .status(500)
       .send("An unexpected error occurred, please try again. 002");
@@ -54,11 +68,19 @@ const claim = async (req: NextApiRequest, res: NextApiResponse) => {
   } = maleData[0];
   // Get the parents skin tone from DB
   if (female.skin_tone !== male.skin_tone) {
+    logger.error(
+      new Error("Mismatching parents skin tone"),
+      `father: ${parents.male} - ${male.skin_tone}, mother: ${parents.female} - ${female.skin_tone}`
+    );
     return res
       .status(500)
       .send("These parents do not have matching skin tones");
   }
   if (!female.fertile || !male.fertile) {
+    logger.error(
+      new Error(`Both parents must be fertile`),
+      `father: ${parents.male}, mother: ${parents.female}`
+    );
     return res.status(500).send("Both parents must be fertile.");
   }
   const skinTone = female.skin_tone;
@@ -74,7 +96,10 @@ const claim = async (req: NextApiRequest, res: NextApiResponse) => {
       { gasPrice: GasPrice.fromString("0ustars") }
     );
   } catch (error) {
-    console.error({ error });
+    logger.error(
+      new Error("Failed to create signing client"),
+      `father: ${parents.male}, mother: ${parents.female}`
+    );
     return res
       .status(500)
       .send("Failed to connect to Stargaze chain. Try again later.");
@@ -92,6 +117,10 @@ const claim = async (req: NextApiRequest, res: NextApiResponse) => {
     }
   );
   if (!femaleOwnerResponse.owner || !maleOwnerResponse.owner) {
+    logger.error(
+      new Error("Failed to grab NFT data from Stargaze chain."),
+      `father: ${parents.male}, mother: ${parents.female}`
+    );
     return res
       .status(500)
       .send("Failed to grab NFT data from Stargaze chain. Try again later.");
@@ -99,6 +128,10 @@ const claim = async (req: NextApiRequest, res: NextApiResponse) => {
   const femaleOwner = femaleOwnerResponse.owner;
   const maleOwner = maleOwnerResponse.owner;
   if (femaleOwner !== maleOwner) {
+    logger.error(
+      new Error("Both parent NFTs must be owned by the same wallet address."),
+      `Male owner: ${maleOwner}, Female owner: ${femaleOwner} | father: ${parents.male}, mother: ${parents.female}`
+    );
     return res
       .status(500)
       .send("Both parent NFTs must be owned by the same wallet address.");
@@ -109,7 +142,10 @@ const claim = async (req: NextApiRequest, res: NextApiResponse) => {
     .select()
     .filter("skin_tone", "eq", skinTone);
   if (childrenError || !childrenData) {
-    console.error({ childrenError });
+    logger.error(
+      new Error(`Failed to get child with skin tone (${skinTone})`),
+      `Owner: ${femaleOwner} | father: ${parents.male}, mother: ${parents.female}`
+    );
     return res
       .status(500)
       .send("An unexpected error occurred, please try again. 004");
@@ -119,13 +155,33 @@ const claim = async (req: NextApiRequest, res: NextApiResponse) => {
     skin_tone: string;
   } = childrenData[Math.floor(Math.random() * childrenData.length) + 1];
   if (!randomChild) {
-    console.error("Failed to choose a random child.");
+    logger.error(
+      new Error("Failed to choose a random child."),
+      `Owner: ${femaleOwner} | father: ${parents.male}, mother: ${parents.female}`
+    );
     return res
       .status(500)
       .send("An unexpected error occurred, please try again. 005");
   }
+  // Call PG function to spawn child in DB
+  const { error: pgFunctionError } = await supabase.rpc("spawn_child", {
+    female_token_id: female.token_id,
+    male_token_id: male.token_id,
+    child_token_id: randomChild.token_id,
+  });
+  if (pgFunctionError) {
+    logger.error(
+      new Error("Failed to execute PG function (spawn_child)"),
+      `Owner: ${femaleOwner} | father: ${parents.male}, mother: ${parents.female}, child: ${randomChild.token_id} - ${pgFunctionError.message}`
+    );
+    return res
+      .status(500)
+      .send("An unexpected error occurred, please try again. 006");
+  }
   // Attempt to mint 1 randomly chosen child from the list
-  console.log(`Minting Child #${randomChild.token_id} to: ${femaleOwner}`);
+  logger.info(
+    `Minting Child #${randomChild.token_id} to: ${femaleOwner} | father: ${parents.male}, mother: ${parents.female}`
+  );
   try {
     await cosmWasmClient.execute(
       env.BACKEND_ADDRESS,
@@ -139,27 +195,45 @@ const claim = async (req: NextApiRequest, res: NextApiResponse) => {
       "auto"
     );
   } catch (error: unknown) {
-    console.error({ error });
+    logger.error(
+      new Error(`Failed to mint child (${randomChild.token_id})`),
+      `Owner: ${femaleOwner} | father: ${parents.male}, mother: ${parents.female}`
+    );
     if (error instanceof Error) {
+      // Call PG function to spawn child in DB
+      const { error: pgFunctionError } = await supabase.rpc("unspawn_child", {
+        female_token_id: female.token_id,
+        male_token_id: male.token_id,
+        child_token_id: randomChild.token_id,
+        child_skin_tone: randomChild.skin_tone,
+      });
+      if (pgFunctionError) {
+        logger.error(
+          new Error("Failed to execute PG function (unspawn_child)"),
+          `Owner: ${femaleOwner} | father: ${parents.male}, mother: ${parents.female}, child: ${randomChild.token_id} - ${pgFunctionError.message}`
+        );
+      } else {
+        logger.info(
+          `Unspawned child ${randomChild.token_id} for owner: ${femaleOwner} | father: ${parents.male}, mother: ${parents.female}`
+        );
+      }
       if (error.message.includes("already sold")) {
+        logger.error(
+          new Error(`Child already minted (${randomChild.token_id})`),
+          `Owner: ${femaleOwner} | father: ${parents.male}, mother: ${parents.female}`
+        );
         return res
           .status(500)
           .send(`Token ID ${randomChild.token_id} already minted.`);
       }
+      logger.error(
+        new Error(`Failed to mint child (${randomChild.token_id})`),
+        `Owner: ${femaleOwner} | father: ${parents.male}, mother: ${parents.female} - ${error.message}`
+      );
     }
     return res
       .status(500)
-      .send("An unexpected error occurred, please try again. 006");
-  }
-  // Call PG function to spawn child in DB
-  const { error: pgFunctionError } = await supabase.rpc("spawned_child", {
-    female_token_id: female.token_id,
-    male_token_id: male.token_id,
-    child_token_id: randomChild.token_id,
-  });
-  if (pgFunctionError) {
-    console.error({ pgFunctionError });
-    // TODO -- send to logging service
+      .send("An unexpected error occurred, please try again. 007");
   }
   const child: Child = {
     token_id: randomChild.token_id,

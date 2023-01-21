@@ -6,10 +6,16 @@ import { createClient } from "@supabase/supabase-js";
 import { FamilyTreeTable } from "../components/FamilyTreeTable";
 import type { NFT_DATA } from "./api/eligibility.js";
 
-const FamilyTree: NextPage<{ males: NFT_DATA[]; females: NFT_DATA[] }> = ({
-  males,
-  females,
-}) => {
+const FamilyTree: NextPage<{
+  males: {
+    data: NFT_DATA[];
+    count: number;
+  };
+  females: {
+    data: NFT_DATA[];
+    count: number;
+  };
+}> = ({ males, females }) => {
   return (
     <>
       <Head>
@@ -43,12 +49,27 @@ export const getServerSideProps: GetServerSideProps = async () => {
     "https://msvnkzrbqnjknulgqbal.supabase.co",
     env.NEXT_PUBLIC_SUPABASE_KEY
   );
-  const { data: femalesData } = await supabase.from("females").select();
-  const { data: malesData } = await supabase.from("males").select();
+  const { data: femalesData } = await supabase
+    .from("females")
+    .select()
+    .limit(50);
+  const { count: femalesCount } = await supabase
+    .from("females")
+    .select("*", { count: "exact", head: true });
+  const { count: malesCount } = await supabase
+    .from("males")
+    .select("*", { count: "exact", head: true });
+  const { data: malesData } = await supabase.from("males").select().limit(50);
   return {
     props: {
-      males: malesData,
-      females: femalesData,
+      males: {
+        data: malesData,
+        count: malesCount,
+      },
+      females: {
+        data: femalesData,
+        count: femalesCount,
+      },
     },
   };
 };

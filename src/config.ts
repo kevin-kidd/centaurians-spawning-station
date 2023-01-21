@@ -11,21 +11,21 @@ export const CONTRACTS =
     ? {
         female: {
           sg721:
-            "stars1awr5sx4aga3aucx7l8a9rxgwmgpxuv8af6zg2k5tdtx8jp0n2tqs6sspyr",
+            "stars1jehtatssqsqzuec92qjeadh3fysakdece3drnfdeyzf9va285vwq6wq2xy",
           minter:
-            "stars1559gw2e9mq48mthtzngxawqtlxrt8kfxh4jlfalflyl3fckm4q8svuydgv",
+            "stars1lcr2rjenkxz3t9d2k373a86sqw7q802ft5fnzpukf0jkn6yyaynq5ljtd2",
         },
         male: {
           sg721:
-            "stars1j8q4fe32rwepqtkkusguqz2p2lkhctzuk5vd5aemcxkd9xdlwrys7ja33z",
+            "stars1clw2ea3cyga0lfa8jgkddlzek549l3sr7vxlyxrgszhz8rsmps2stdyhrv",
           minter:
-            "stars1mjr0waxnzhmftz6u7g6d3k9uluxymwze8sakkd8xfy2skjf4cu3s38v4ty",
+            "stars156q86v9a2zgcvdaqffseu8ey875p9ac7njp2f7eyj0cfulyhv8wqt8vues",
         },
         children: {
           sg721:
-            "stars15z2f5uqf7vulyfjzw206tnsx2qns7ny777n30lsxe0l04xa3xh4q040m06",
+            "stars1hk0ez5mwmjfenqx7dgztwegmtggr8l36qagslh2q0asezw9eqaaq27mlaj",
           minter:
-            "stars1a2rlrj5gera2w5d9ve0ugkz77d6n869422j6exxvve4nkafk67cs7a4vhx",
+            "stars1ct320we24scgxaqhthg6p4s6lt36xxuff32drc28vfspju4kyn4szan43s",
         },
       }
     : {
