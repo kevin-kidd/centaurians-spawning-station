@@ -56,7 +56,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
   const { count: femalesCount } = await supabase
     .from("females")
     .select("*", { count: "exact", head: true });
-  const { count: malesCount, data: malesData2 } = await supabase
+  const { count: malesCount } = await supabase
     .from("males")
     .select("*", { count: "exact", head: true });
   const { data: malesData } = await supabase.from("males").select().limit(50);

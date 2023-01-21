@@ -25,7 +25,7 @@ export const FamilyTreeTable: FunctionComponent<{
 }> = ({ males, females }) => {
   const [selectedCollection, setSelectedCollection] = useState("Females");
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchValue, setSearchValue] = useState<string>();
+  const [searchValue, setSearchValue] = useState("");
   const [filteredNfts, setFilteredNfts] = useState<NFT_DATA[]>(females.data);
   const handleSearch = async (event: ChangeEvent<HTMLInputElement>) => {
     setCurrentPage(1);
@@ -38,19 +38,20 @@ export const FamilyTreeTable: FunctionComponent<{
     const { data }: PostgrestResponse<NFT_DATA> = await supabase
       .from(selectedCollection === "Females" ? "females" : "males")
       .select()
-      .textSearch("token_id", `'${event.target.value}'`, { type: "websearch" })
+      .eq("token_id", event.target.value)
       .limit(50);
     if (data) {
       setFilteredNfts(data);
     }
   };
   const getMoreData = async () => {
+    if (filteredNfts.length >= males.count) return;
     let nfts: NFT_DATA[] = [];
     if (searchValue) {
       const { data }: PostgrestResponse<NFT_DATA> = await supabase
         .from(selectedCollection === "Females" ? "females" : "males")
         .select()
-        .textSearch("token_id", `'${searchValue}'`)
+        .eq("token_id", searchValue)
         .range(filteredNfts.length, filteredNfts.length + 50);
       if (data) nfts = data;
     } else {
