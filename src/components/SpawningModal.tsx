@@ -18,6 +18,7 @@ import { BiError } from "react-icons/bi";
 import type { Child } from "../pages/api/claim";
 import { CONTRACTS, IPFS_CID, STARGAZE_URL } from "../config";
 import ranks from "../ranks.json";
+import { useSpawnState } from "../stores/spawningStore";
 
 const NftImage = ({ url }: { url: string }) => {
   const [loading, setLoading] = useState(true);
@@ -50,13 +51,12 @@ const NftImage = ({ url }: { url: string }) => {
 export const SpawningModal: FunctionComponent<{
   isOpen: boolean;
   handleClose: () => void;
-  parents: Parents[];
-}> = ({ isOpen, handleClose, parents }) => {
-  const [currentParentsIndex, setCurrentParentsIndex] = useState(0);
-  const [children, setChildren] = useState<Child[]>([]);
+}> = ({ isOpen, handleClose }) => {
   const [loading, setLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const { increase, currentParentsIndex, children, addChild, parents } =
+    useSpawnState((state) => state);
   const handleSpawn = async () => {
     setLoading(true);
     try {
@@ -68,7 +68,7 @@ export const SpawningModal: FunctionComponent<{
       if (!response.child) {
         throw new Error("An unexpected error occurred. Please try again.");
       }
-      setChildren((prev: Child[]) => [...prev, response.child]);
+      addChild(response.child);
     } catch (error: unknown) {
       console.error(error);
       if (error instanceof HTTPError) {
@@ -83,7 +83,7 @@ export const SpawningModal: FunctionComponent<{
     setLoading(false);
   };
   const handleNext = () => {
-    setCurrentParentsIndex((prev: number) => prev + 1);
+    increase();
   };
   const handleRetry = () => {
     setIsError(false);
@@ -252,14 +252,21 @@ export const SpawningButton: FunctionComponent<{
   refetch: () => void;
 }> = ({ disabled, parents, refetch }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const reset = useSpawnState((state) => state.reset);
+  const addParents = useSpawnState((state) => state.addParents);
   const handleClose = () => {
     setIsOpen(false);
     refetch();
+    reset();
+  };
+  const handleOpen = () => {
+    addParents(parents);
+    setIsOpen(true);
   };
   return (
     <>
       <button
-        onClick={() => setIsOpen(true)}
+        onClick={handleOpen}
         className={classNames(
           "mb-7 rounded-lg bg-white/30 px-3 py-2 text-lg font-semibold hover:bg-white/40",
           disabled && "hover:cursor-not-allowed"
@@ -268,13 +275,7 @@ export const SpawningButton: FunctionComponent<{
       >
         Begin Spawning
       </button>
-      {isOpen && (
-        <SpawningModal
-          handleClose={handleClose}
-          isOpen={isOpen}
-          parents={parents}
-        />
-      )}
+      {isOpen && <SpawningModal handleClose={handleClose} isOpen={isOpen} />}
     </>
   );
 };
