@@ -13,20 +13,16 @@ const supabase = createClient(
   env.NEXT_PUBLIC_SUPABASE_KEY
 );
 
+const NFT_SUPPLY = 1570;
+
 export const FamilyTreeTable: FunctionComponent<{
-  males: {
-    data: NFT_DATA[];
-    count: number;
-  };
-  females: {
-    data: NFT_DATA[];
-    count: number;
-  };
+  males: NFT_DATA[];
+  females: NFT_DATA[];
 }> = ({ males, females }) => {
   const [selectedCollection, setSelectedCollection] = useState("Females");
   const [currentPage, setCurrentPage] = useState(1);
   const [searchValue, setSearchValue] = useState("");
-  const [filteredNfts, setFilteredNfts] = useState<NFT_DATA[]>(females.data);
+  const [filteredNfts, setFilteredNfts] = useState<NFT_DATA[]>(females);
   const handleSearch = async (event: ChangeEvent<HTMLInputElement>) => {
     setCurrentPage(1);
     setSearchValue(event.target.value);
@@ -45,7 +41,7 @@ export const FamilyTreeTable: FunctionComponent<{
     }
   };
   const getMoreData = async () => {
-    if (filteredNfts.length >= males.count) return;
+    if (filteredNfts.length >= NFT_SUPPLY) return;
     let nfts: NFT_DATA[] = [];
     if (searchValue) {
       const { data }: PostgrestResponse<NFT_DATA> = await supabase
@@ -71,9 +67,7 @@ export const FamilyTreeTable: FunctionComponent<{
     setCurrentPage((prev) => prev - 1);
   };
   const resetFilteredNfts = () => {
-    setFilteredNfts(
-      selectedCollection === "Females" ? females.data : males.data
-    );
+    setFilteredNfts(selectedCollection === "Females" ? females : males);
   };
   return (
     <>
@@ -262,24 +256,24 @@ export const FamilyTreeTable: FunctionComponent<{
         </button>
         Page {currentPage}/
         {selectedCollection === "Females"
-          ? Math.ceil(searchValue ? filteredNfts.length : females.count / 5)
-          : Math.ceil(searchValue ? filteredNfts.length : males.count / 5)}
+          ? Math.ceil(searchValue ? filteredNfts.length : NFT_SUPPLY / 5)
+          : Math.ceil(searchValue ? filteredNfts.length : NFT_SUPPLY / 5)}
         <button
           className={classNames(
             "text-xl text-white/90",
             (selectedCollection === "Females"
-              ? Math.ceil(searchValue ? filteredNfts.length : females.count / 5)
+              ? Math.ceil(searchValue ? filteredNfts.length : NFT_SUPPLY / 5)
               : Math.ceil(
-                  searchValue ? filteredNfts.length : males.count / 5
+                  searchValue ? filteredNfts.length : NFT_SUPPLY / 5
                 )) <= currentPage
               ? "hover:cursor-not-allowed"
               : "hover:text-white"
           )}
           disabled={
             (selectedCollection === "Females"
-              ? Math.ceil(searchValue ? filteredNfts.length : females.count / 5)
+              ? Math.ceil(searchValue ? filteredNfts.length : NFT_SUPPLY / 5)
               : Math.ceil(
-                  searchValue ? filteredNfts.length : males.count / 5
+                  searchValue ? filteredNfts.length : NFT_SUPPLY / 5
                 )) <= currentPage
           }
           onClick={handleNext}

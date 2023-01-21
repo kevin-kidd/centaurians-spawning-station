@@ -7,14 +7,8 @@ import { FamilyTreeTable } from "../components/FamilyTreeTable";
 import type { NFT_DATA } from "./api/eligibility.js";
 
 const FamilyTree: NextPage<{
-  males: {
-    data: NFT_DATA[];
-    count: number;
-  };
-  females: {
-    data: NFT_DATA[];
-    count: number;
-  };
+  males: NFT_DATA[];
+  females: NFT_DATA[];
 }> = ({ males, females }) => {
   return (
     <>
@@ -52,24 +46,12 @@ export const getServerSideProps: GetServerSideProps = async () => {
   const { data: femalesData } = await supabase
     .from("females")
     .select()
-    .limit(50);
-  const { count: femalesCount } = await supabase
-    .from("females")
-    .select("*", { count: "exact", head: true });
-  const { count: malesCount } = await supabase
-    .from("males")
-    .select("*", { count: "exact", head: true });
-  const { data: malesData } = await supabase.from("males").select().limit(50);
+    .limit(20);
+  const { data: malesData } = await supabase.from("males").select().limit(20);
   return {
     props: {
-      males: {
-        data: malesData,
-        count: malesCount,
-      },
-      females: {
-        data: femalesData,
-        count: femalesCount,
-      },
+      males: malesData,
+      females: femalesData,
     },
   };
 };
