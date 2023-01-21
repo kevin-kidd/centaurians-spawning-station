@@ -1,21 +1,9 @@
-import type { GetServerSideProps, NextPage } from "next";
+import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import { env } from "../env/server.mjs";
-import { createClient } from "@supabase/supabase-js";
 import { FamilyTreeTable } from "../components/FamilyTreeTable";
-import type { NFT_DATA } from "./api/eligibility.js";
 
-const FamilyTree: NextPage<{
-  males: {
-    data: NFT_DATA[];
-    count: number;
-  };
-  females: {
-    data: NFT_DATA[];
-    count: number;
-  };
-}> = ({ males, females }) => {
+const FamilyTree: NextPage = () => {
   return (
     <>
       <Head>
@@ -36,42 +24,12 @@ const FamilyTree: NextPage<{
             Family Tree
           </h1>
           <div className="flex relative w-full max-w-2xl flex-col items-center gap-3 rounded-xl bg-white/20 px-2 py-6 text-white sm:p-8">
-            <FamilyTreeTable males={males} females={females} />
+            <FamilyTreeTable />
           </div>
         </div>
       </main>
     </>
   );
-};
-
-export const getServerSideProps: GetServerSideProps = async () => {
-  const supabase = createClient(
-    "https://msvnkzrbqnjknulgqbal.supabase.co",
-    env.NEXT_PUBLIC_SUPABASE_KEY
-  );
-  const { data: femalesData } = await supabase
-    .from("females")
-    .select()
-    .limit(50);
-  const { count: femalesCount } = await supabase
-    .from("females")
-    .select("*", { count: "exact", head: true });
-  const { count: malesCount } = await supabase
-    .from("males")
-    .select("*", { count: "exact", head: true });
-  const { data: malesData } = await supabase.from("males").select().limit(50);
-  return {
-    props: {
-      males: {
-        data: malesData,
-        count: malesCount,
-      },
-      females: {
-        data: femalesData,
-        count: femalesCount,
-      },
-    },
-  };
 };
 
 export default FamilyTree;
