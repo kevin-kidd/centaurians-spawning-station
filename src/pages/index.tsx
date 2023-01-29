@@ -1,6 +1,7 @@
 import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
+import { Footer } from "../components/Footer";
 
 const Home: NextPage = () => {
   return (
@@ -14,9 +15,9 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="bg-image" />
-      <main className="flex min-h-screen flex-col items-center justify-center">
+      <main className="flex min-h-[92vh] flex-col items-center justify-center">
         <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
-          <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
+          <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem] text-center">
             <span className="text-[hsl(275,94%,61%)]">Spawning</span> Station
           </h1>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
@@ -42,6 +43,7 @@ const Home: NextPage = () => {
           </div>
         </div>
       </main>
+      <Footer />
     </>
   );
 };

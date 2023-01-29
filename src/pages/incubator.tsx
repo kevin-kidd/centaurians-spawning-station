@@ -2,6 +2,7 @@ import { useChain } from "@cosmos-kit/react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
+import { Footer } from "../components/Footer";
 import { SpawningCard } from "../components/SpawningCard";
 
 const Incubator: NextPage = () => {
@@ -17,7 +18,7 @@ const Incubator: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="bg-image" />
-      <main className="flex relative min-h-screen flex-col items-center pt-[10%]">
+      <main className="flex relative min-h-[92vh] flex-col items-center pt-[10%]">
         <div className="flex container flex-col items-center gap-12 px-4 py-16">
           <Link
             className="absolute top-8 left-8 text-lg font-semibold text-white"
@@ -47,6 +48,7 @@ const Incubator: NextPage = () => {
           </div>
         </div>
       </main>
+      <Footer />
     </>
   );
 };

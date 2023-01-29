@@ -19,6 +19,7 @@ import type { Child } from "../pages/api/claim";
 import { CONTRACTS, IPFS_CID, STARGAZE_URL } from "../config";
 import ranks from "../ranks.json";
 import { useSpawnState } from "../stores/spawningStore";
+import { env } from "../env/client.mjs";
 
 const NftImage = ({ url }: { url: string }) => {
   const [loading, setLoading] = useState(true);
