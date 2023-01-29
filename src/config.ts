@@ -32,16 +32,20 @@ export const CONTRACTS =
         female: {
           sg721:
             "stars1q30dl4860s5l5xm36swwdv9g8j50j4h8y2f7ynd35ya0jlp5gzts7c6vt0",
-          minter: "",
+          minter:
+            "stars1d0h3e0pjtyfrcpps7xczp6qx6jvxt8pl99kkyk4gxayj6wfau04qsvc95t",
         },
         male: {
           sg721:
             "stars1atmccal7mpum6hvn6ayev9xp0nnjscrk6w9xsfjkhre5fa47z5jsetzvwd",
-          minter: "",
+          minter:
+            "stars1ekhzkjes36smfzx3k3aewvyf70yhlppxagcshp05pc4n9jqmtt7q2ndd9k",
         },
         children: {
-          sg721: "",
-          minter: "",
+          sg721:
+            "stars18zcnj2taxnj9mf9hzec75exdyj9fpqc6hz8epqrfagezg8e7y6rql8s8gx",
+          minter:
+            "stars1w4wygjgjg8c2lzvxeycgq4epzqa8509699acn634ycm685yntpqqm9zlrn",
         },
       };
 
@@ -53,4 +57,4 @@ export const RPC_ENDPOINT =
 export const STARGAZE_URL =
   env.NEXT_PUBLIC_NETWORK_TYPE === "testnet"
     ? "https://testnet.publicawesome.dev"
-    : "https://app.stargaze.zone";
+    : "https://stargaze.zone";

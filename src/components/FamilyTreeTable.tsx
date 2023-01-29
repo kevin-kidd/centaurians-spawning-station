@@ -26,7 +26,6 @@ export const FamilyTreeTable: FunctionComponent = () => {
     selectedCollection,
     filteredNfts,
     handleToggle,
-    isLoading,
   } = useFamilyTree();
   return (
     <>

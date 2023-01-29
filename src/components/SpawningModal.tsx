@@ -109,7 +109,7 @@ export const SpawningModal: FunctionComponent<{
             <NftImage
               url={`https://ipfs.stargaze.zone/ipfs/${IPFS_CID.female}/${parents[currentParentsIndex]?.female}.png`}
             />
-            <h2 className="absolute bottom-0 left-0 w-full bg-black/70 py-2 text-center text-lg font-semibold text-white">
+            <h2 className="absolute bottom-0 left-0 w-full bg-black/70 py-1 text-center font-semibold text-base text-white">
               Female #{parents[currentParentsIndex]?.female}
             </h2>
           </Link>
@@ -121,7 +121,7 @@ export const SpawningModal: FunctionComponent<{
             <NftImage
               url={`https://ipfs.stargaze.zone/ipfs/${IPFS_CID.male}/${parents[currentParentsIndex]?.male}.png`}
             />
-            <h2 className="absolute bottom-0 left-0 w-full bg-black/70 py-2 text-center text-lg font-semibold text-white">
+            <h2 className="absolute bottom-0 left-0 w-full bg-black/70 py-1 text-center font-semibold text-base text-white">
               Male #{parents[currentParentsIndex]?.male}
             </h2>
           </Link>
@@ -142,7 +142,7 @@ export const SpawningModal: FunctionComponent<{
                 <NftImage
                   url={`https://ipfs.stargaze.zone/ipfs/${IPFS_CID.children}/${children[currentParentsIndex]?.token_id}.png`}
                 />
-                <h2 className="absolute bottom-0 left-0 w-full rounded-b-md bg-black/70 py-2 text-center text-lg font-semibold text-white">
+                <h2 className="absolute bottom-0 left-0 w-full bg-black/70 rounded-b-md py-1 text-center font-semibold text-base text-white">
                   Child #{children[currentParentsIndex]?.token_id}
                 </h2>
               </>
@@ -155,7 +155,7 @@ export const SpawningModal: FunctionComponent<{
                     loading && <Spinner className="-mt-4" />
                   )}
                 </div>
-                <h2 className="absolute bottom-0 left-0 w-full rounded-b-md bg-black/70 py-2 text-center text-lg font-semibold text-white">
+                <h2 className="absolute bottom-0 left-0 w-full rounded-b-md bg-black/70 py-1 text-center font-semibold text-base text-white">
                   Child # ??
                 </h2>
               </>
