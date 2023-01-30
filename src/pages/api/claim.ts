@@ -18,6 +18,10 @@ const logStream = createWriteStream({
   sourceToken: env.LOGFLARE_SOURCE_TOKEN,
 });
 const logger = pino({}, logStream);
+const supabase = createClient(
+  "https://msvnkzrbqnjknulgqbal.supabase.co",
+  env.SUPABASE_KEY_PRIVATE
+);
 
 const claim = async (req: NextApiRequest, res: NextApiResponse) => {
   const body = req.body;
@@ -25,10 +29,6 @@ const claim = async (req: NextApiRequest, res: NextApiResponse) => {
     return res.status(500).send("Incorrect arguments provided.");
   }
   const parents: Parents = body.parents;
-  const supabase = createClient(
-    "https://msvnkzrbqnjknulgqbal.supabase.co",
-    env.SUPABASE_KEY_PRIVATE
-  );
   // Check parents are eligible
   const { data: femaleData, error: femaleError } = await supabase
     .from("females")
@@ -194,29 +194,35 @@ const claim = async (req: NextApiRequest, res: NextApiResponse) => {
       },
       "auto"
     );
+    const child: Child = {
+      token_id: randomChild.token_id,
+      skin_tone: randomChild.skin_tone,
+    };
+    return res.status(200).json({ child: child });
   } catch (error: unknown) {
+    console.error({ error });
     logger.error(
       new Error(`Failed to mint child (${randomChild.token_id})`),
       `Owner: ${femaleOwner} | father: ${parents.male}, mother: ${parents.female}`
     );
+    // Call PG function to unspawn child in DB
+    const { error: pgFunctionError } = await supabase.rpc("unspawn_child", {
+      female_token_id: female.token_id,
+      male_token_id: male.token_id,
+      child_token_id: randomChild.token_id,
+      child_skin_tone: randomChild.skin_tone,
+    });
+    if (pgFunctionError) {
+      logger.error(
+        new Error("Failed to execute PG function (unspawn_child)"),
+        `Owner: ${femaleOwner} | father: ${parents.male}, mother: ${parents.female}, child: ${randomChild.token_id} - ${pgFunctionError.message}`
+      );
+    } else {
+      logger.info(
+        `Unspawned child ${randomChild.token_id} for owner: ${femaleOwner} | father: ${parents.male}, mother: ${parents.female}`
+      );
+    }
     if (error instanceof Error) {
-      // Call PG function to spawn child in DB
-      const { error: pgFunctionError } = await supabase.rpc("unspawn_child", {
-        female_token_id: female.token_id,
-        male_token_id: male.token_id,
-        child_token_id: randomChild.token_id,
-        child_skin_tone: randomChild.skin_tone,
-      });
-      if (pgFunctionError) {
-        logger.error(
-          new Error("Failed to execute PG function (unspawn_child)"),
-          `Owner: ${femaleOwner} | father: ${parents.male}, mother: ${parents.female}, child: ${randomChild.token_id} - ${pgFunctionError.message}`
-        );
-      } else {
-        logger.info(
-          `Unspawned child ${randomChild.token_id} for owner: ${femaleOwner} | father: ${parents.male}, mother: ${parents.female}`
-        );
-      }
       if (error.message.includes("already sold")) {
         logger.error(
           new Error(`Child already minted (${randomChild.token_id})`),
@@ -235,12 +241,6 @@ const claim = async (req: NextApiRequest, res: NextApiResponse) => {
       .status(500)
       .send("An unexpected error occurred, please try again. 007");
   }
-  const child: Child = {
-    token_id: randomChild.token_id,
-    skin_tone: randomChild.skin_tone,
-  };
-  // Make parents infertile
-  return res.status(200).json({ child: child });
 };
 
 export default claim;
