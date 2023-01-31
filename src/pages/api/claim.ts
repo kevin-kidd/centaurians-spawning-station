@@ -18,10 +18,6 @@ const logStream = createWriteStream({
   sourceToken: env.LOGFLARE_SOURCE_TOKEN,
 });
 const logger = pino({}, logStream);
-const supabase = createClient(
-  "https://msvnkzrbqnjknulgqbal.supabase.co",
-  env.SUPABASE_KEY_PRIVATE
-);
 
 const claim = async (req: NextApiRequest, res: NextApiResponse) => {
   const body = req.body;
@@ -29,6 +25,10 @@ const claim = async (req: NextApiRequest, res: NextApiResponse) => {
     return res.status(500).send("Incorrect arguments provided.");
   }
   const parents: Parents = body.parents;
+  const supabase = createClient(
+    "https://msvnkzrbqnjknulgqbal.supabase.co",
+    env.SUPABASE_KEY_PRIVATE
+  );
   // Check parents are eligible
   const { data: femaleData, error: femaleError } = await supabase
     .from("females")
