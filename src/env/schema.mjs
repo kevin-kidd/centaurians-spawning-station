@@ -12,6 +12,7 @@ export const serverSchema = z.object({
   BACKEND_ADDRESS: z.string(),
   LOGFLARE_API_KEY: z.string(),
   LOGFLARE_SOURCE_TOKEN: z.string(),
+  TOURNAMENT_KEY: z.string(),
 });
 
 /**
