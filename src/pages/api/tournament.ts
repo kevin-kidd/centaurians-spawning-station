@@ -11,7 +11,7 @@ const tournament = async (req: NextApiRequest, res: NextApiResponse) => {
     return res.status(500).send("You must provide an address.");
   }
   if (!body.key || body.key !== env.TOURNAMENT_KEY) {
-    return res.status(500).send("You must provide an address.");
+    return res.status(500).send("You must provide a valid key.");
   }
   const supabase = createClient(
     "https://msvnkzrbqnjknulgqbal.supabase.co",
