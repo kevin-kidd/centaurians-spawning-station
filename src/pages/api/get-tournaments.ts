@@ -13,7 +13,7 @@ const getTournaments = async (req: NextApiRequest, res: NextApiResponse) => {
     "https://msvnkzrbqnjknulgqbal.supabase.co",
     env.SUPABASE_KEY_PRIVATE
   );
-  const { data, error } = await supabase.from("tournaments").select();
+  const { data, error } = await supabase.from("tournament_winners").select();
   if (error) {
     console.error({ error });
     return res.status(400).send(error.message);
