@@ -13,7 +13,7 @@ const config = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "ipfs.stargaze.zone",
+        hostname: "ipfs-gw.stargaze-apis.com",
         port: "",
         pathname: "/ipfs/**",
       },

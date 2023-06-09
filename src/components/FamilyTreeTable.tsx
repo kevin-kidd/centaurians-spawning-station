@@ -6,7 +6,6 @@ import { useEffect } from "react";
 import { useState } from "react";
 import type { NFT_DATA } from "../pages/api/eligibility";
 import { env } from "../env/client.mjs";
-import type { PostgrestResponse } from "@supabase/supabase-js";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -147,7 +146,7 @@ export const FamilyTreeTable: FunctionComponent = () => {
                                     className="h-full w-full rounded-full"
                                     width={50}
                                     height={50}
-                                    src={`https://ipfs.stargaze.zone/ipfs/${
+                                    src={`https://ipfs-gw.stargaze-apis.com/ipfs/${
                                       selectedCollection === "Females"
                                         ? "bafybeifxnqvhkylow3jj3r7udamjihjp3qjalbzwcx2tnqkih5p46shnmq"
                                         : "bafybeia7uiqs7rw3kahhl33in3tdo4rggzfl3wnv2ust6d4ymyk2kq45ra"
@@ -276,12 +275,12 @@ const useFamilyTree = () => {
     }
     setIsLoading(true);
     // Search DB
-    const { data }: PostgrestResponse<NFT_DATA> = await supabase
+    const { data } = await supabase
       .from(selectedCollection === "Females" ? "females" : "males")
       .select()
       .eq("token_id", event.target.value)
       .limit(50);
-    if (data) setFilteredNfts(data);
+    if (data) setFilteredNfts(data as NFT_DATA[]);
     setIsLoading(false);
   };
   const handleNext = async () => {
@@ -298,16 +297,16 @@ const useFamilyTree = () => {
     const currentIndex =
       selectedCollection === "Females" ? femaleNfts.length : maleNfts.length;
     if (currentIndex >= NFT_SUPPLY) return;
-    const { data }: PostgrestResponse<NFT_DATA> = await supabase
+    const { data } = await supabase
       .from(selectedCollection === "Females" ? "females" : "males")
       .select()
       .range(currentIndex, currentIndex + 50);
     if (data) {
       setFilteredNfts([
         ...(selectedCollection === "Females" ? femaleNfts : maleNfts),
-        ...data,
+        ...(data as NFT_DATA[]),
       ]);
-      setNfts((prev) => [...prev, ...data]);
+      setNfts((prev) => [...prev, ...(data as NFT_DATA[])]);
     }
     setIsLoading(false);
   };

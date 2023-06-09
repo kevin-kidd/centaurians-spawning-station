@@ -18,7 +18,7 @@ const tournament = async (req: NextApiRequest, res: NextApiResponse) => {
       const { data, error } = await supabase.from("tournaments").select();
       if (error) throw new Error(error.message);
       if (data.length > 0) {
-        isActive = checkIfActive(data);
+        isActive = checkIfActive(data as Row[]);
       }
       return res.status(200).send(isActive);
     } else {
@@ -48,7 +48,7 @@ const addWinner = async (body: { winner: string; key: string }) => {
     "https://msvnkzrbqnjknulgqbal.supabase.co",
     env.SUPABASE_KEY_PRIVATE
   );
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("tournament_winners")
     .insert({ winner: body.winner });
   if (error) throw new Error(error.message);

@@ -19,6 +19,12 @@ const logStream = createWriteStream({
 });
 const logger = pino({}, logStream);
 
+type Parent = {
+  token_id: number;
+  fertile: boolean;
+  skin_tone: string;
+};
+
 const claim = async (req: NextApiRequest, res: NextApiResponse) => {
   const body = req.body;
   if (!body.parents || !body.parents.female || !body.parents.male) {
@@ -56,16 +62,8 @@ const claim = async (req: NextApiRequest, res: NextApiResponse) => {
       .status(500)
       .send("An unexpected error occurred, please try again. 002");
   }
-  const female: {
-    token_id: number;
-    fertile: boolean;
-    skin_tone: string;
-  } = femaleData[0];
-  const male: {
-    token_id: number;
-    fertile: boolean;
-    skin_tone: string;
-  } = maleData[0];
+  const female = femaleData[0] as Parent;
+  const male = maleData[0] as Parent;
   // Get the parents skin tone from DB
   if (female.skin_tone !== male.skin_tone) {
     logger.error(
@@ -150,10 +148,9 @@ const claim = async (req: NextApiRequest, res: NextApiResponse) => {
       .status(500)
       .send("An unexpected error occurred, please try again. 004");
   }
-  const randomChild: {
-    token_id: number;
-    skin_tone: string;
-  } = childrenData[Math.floor(Math.random() * childrenData.length) + 1];
+  const randomChild = childrenData[
+    Math.floor(Math.random() * childrenData.length) + 1
+  ] as Child;
   if (!randomChild) {
     logger.error(
       new Error("Failed to choose a random child."),

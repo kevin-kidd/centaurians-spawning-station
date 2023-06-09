@@ -41,8 +41,10 @@ const eligibility = async (req: NextApiRequest, res: NextApiResponse) => {
   }
   const eligibleParents: Parents[] = [];
   // Find matching parents
-  const males: NFT_DATA[] = malesData.filter((male: NFT_DATA) => male.fertile);
-  const females: NFT_DATA[] = femalesData.filter(
+  const males: NFT_DATA[] = (malesData as NFT_DATA[]).filter(
+    (male: NFT_DATA) => male.fertile
+  );
+  const females: NFT_DATA[] = (femalesData as NFT_DATA[]).filter(
     (male: NFT_DATA) => male.fertile
   );
   if (!males || !females) {
