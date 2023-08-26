@@ -13,6 +13,16 @@ export const serverSchema = z.object({
   LOGFLARE_API_KEY: z.string(),
   LOGFLARE_SOURCE_TOKEN: z.string(),
   TOURNAMENT_KEY: z.string(),
+  FIREBASE_apiKey: z.string(),
+  FIREBASE_authDomain: z.string(),
+  FIREBASE_databaseURL: z.string(),
+  FIREBASE_projectId: z.string(),
+  FIREBASE_storageBucket: z.string(),
+  FIREBASE_messagingSenderId: z.string(),
+  FIREBASE_appId: z.string(),
+  FIREBASE_measurementId: z.string(),
+  FIREBASE_private_key: z.string(),
+  FIREBASE_client_email: z.string(),
 });
 
 /**

@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/setTournamentStart",
+      "schedule": "15 1 * * *"
+    },
+    {
+      "path": "/api/cron/setTournamentEnd",
+      "schedule": "30 1 * * *"
+    }
+  ]
+}
