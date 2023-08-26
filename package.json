@@ -30,6 +30,8 @@
     "clsx": "^1.2.1",
     "cosmwasm": "^1.1.1",
     "date-fns": "^2.30.0",
+    "firebase": "^10.3.0",
+    "firebase-admin": "^11.10.1",
     "framer-motion": "^8.2.4",
     "ky": "^0.33.2",
     "lucide-react": "^0.220.0",
