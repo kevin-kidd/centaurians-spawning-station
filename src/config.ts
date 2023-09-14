@@ -52,7 +52,7 @@ export const CONTRACTS =
 export const RPC_ENDPOINT =
   env.NEXT_PUBLIC_NETWORK_TYPE === "testnet"
     ? "https://rpc.elgafar-1.stargaze-apis.com"
-    : "https://rpc.stargaze-1.publicawesome.dev/";
+    : "https://rpc.stargaze-apis.com/";
 
 export const STARGAZE_URL =
   env.NEXT_PUBLIC_NETWORK_TYPE === "testnet"
