@@ -91,7 +91,7 @@ const claim = async (req: NextApiRequest, res: NextApiResponse) => {
     cosmWasmClient = await SigningCosmWasmClient.connectWithSigner(
       RPC_ENDPOINT,
       wallet,
-      { gasPrice: GasPrice.fromString("0ustars") }
+      { gasPrice: GasPrice.fromString("1ustars") }
     );
   } catch (error) {
     logger.error(
